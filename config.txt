@@ -1,0 +1,25 @@
+# Next account id
+PROXIMO_ID=1006
+
+# Withdrawal limits
+LIM_RET_EUR=5000
+LIM_RET_USD=2000
+LIM_RET_GBP=3000
+
+# Transfer limits
+LIM_TRF_EUR=10000
+LIM_TRF_USD=10000
+LIM_TRF_GBP=10000
+
+# Anomaly thresholds
+UMBRAL_RETIROS=3
+UMBRAL_TRANSFERENCIAS=5
+
+# Execution
+NUM_HILOS=4
+ARCHIVO_CUENTAS=cuentas.dat
+ARCHIVO_LOG=transacciones.log
+
+# Exchange rates (1 EUR in X)
+CAMBIO_USD=1.08
+CAMBIO_GBP=0.86

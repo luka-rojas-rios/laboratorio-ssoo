@@ -1,0 +1,232 @@
+SecureBank – Código Esqueleto Mínimo
+
+===================================================== ARCHIVO:
+estructuras.h =====================================================
+
+    #ifndef ESTRUCTURAS_H
+    #define ESTRUCTURAS_H
+
+    #include <sys/types.h>
+
+    #define ID_INICIAL 1001
+
+    typedef struct {
+        int numero_cuenta;
+        char titular[50];
+        float saldo_eur;
+        float saldo_usd;
+        float saldo_gbp;
+        int num_transacciones;
+    } Cuenta;
+
+    typedef struct {
+        int cuenta_origen;
+        int cuenta_destino;
+        int tipo_op;
+        float cantidad;
+        int divisa;
+        char timestamp[20];
+    } DatosMonitor;
+
+    typedef struct {
+        int cuenta_id;
+        pid_t pid_hijo;
+        int tipo_op;
+        float cantidad;
+        int divisa;
+        int estado;
+        char timestamp[20];
+    } DatosLog;
+
+    struct msgbuf {
+        long mtype;
+        union {
+            DatosMonitor monitor;
+            DatosLog log;
+        } info;
+    };
+
+    #endif
+
+===================================================== ARCHIVO: banco.c
+=====================================================
+
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <unistd.h>
+    #include <sys/wait.h>
+    #include <sys/msg.h>
+    #include "estructuras.h"
+
+    int msgid;
+
+    void lanzar_monitor() {
+        pid_t pid = fork();
+
+        if (pid == 0) {
+            char msgid_str[20];
+            sprintf(msgid_str, "%d", msgid);
+
+            char *args[] = {"./monitor", msgid_str, NULL};
+            execv("./monitor", args);
+
+            perror("Error ejecutando monitor");
+            exit(1);
+        }
+    }
+
+    void bucle_principal() {
+        while (1) {
+            int cuenta;
+
+            printf("Introduce número de cuenta (0 para crear nueva): ");
+            scanf("%d", &cuenta);
+
+            int pipefd[2];
+            pipe(pipefd);
+
+            pid_t pid = fork();
+
+            if (pid == 0) {
+                close(pipefd[1]);
+
+                char cuenta_str[20];
+                sprintf(cuenta_str, "%d", cuenta);
+
+                char *args[] = {"./usuario", cuenta_str, NULL};
+                execv("./usuario", args);
+
+                perror("Error ejecutando usuario");
+                exit(1);
+            } else {
+                close(pipefd[0]);
+            }
+        }
+    }
+
+    int main() {
+
+        msgid = msgget(IPC_PRIVATE, 0666 | IPC_CREAT);
+
+        if (msgid < 0) {
+            perror("Error creando cola de mensajes");
+            exit(1);
+        }
+
+        lanzar_monitor();
+
+        bucle_principal();
+
+        return 0;
+    }
+
+===================================================== ARCHIVO: usuario.c
+=====================================================
+
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <pthread.h>
+    #include <unistd.h>
+    #include "estructuras.h"
+
+    void *ejecutar_operacion(void *arg) {
+
+        // TODO: implementar operación bancaria
+
+        pthread_exit(NULL);
+    }
+
+    void mostrar_menu() {
+
+        printf("\n--- MENU USUARIO ---\n");
+        printf("1. Deposito\n");
+        printf("2. Retiro\n");
+        printf("3. Transferencia\n");
+        printf("4. Consultar saldo\n");
+        printf("5. Mover divisas\n");
+        printf("6. Salir\n");
+    }
+
+    void procesar_opcion(int opcion) {
+
+        pthread_t thread;
+
+        switch(opcion) {
+
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+                pthread_create(&thread, NULL, ejecutar_operacion, NULL);
+                pthread_join(thread, NULL);
+                break;
+
+            case 6:
+                exit(0);
+
+            default:
+                printf("Opcion invalida\n");
+        }
+    }
+
+    int main(int argc, char *argv[]) {
+
+        int opcion;
+
+        while (1) {
+
+            mostrar_menu();
+            scanf("%d", &opcion);
+
+            procesar_opcion(opcion);
+        }
+
+        return 0;
+    }
+
+===================================================== ARCHIVO: monitor.c
+=====================================================
+
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <sys/msg.h>
+    #include "estructuras.h"
+
+    void analizar_transaccion(DatosMonitor *datos) {
+
+        // TODO: implementar detección de anomalías
+
+    }
+
+    int main(int argc, char *argv[]) {
+
+        if (argc < 2) {
+            printf("Uso: monitor <msgid>\n");
+            return 1;
+        }
+
+        int msgid = atoi(argv[1]);
+
+        struct msgbuf mensaje;
+
+        while (1) {
+
+            msgrcv(msgid, &mensaje, sizeof(mensaje.info), 1, 0);
+
+            analizar_transaccion(&mensaje.info.monitor);
+        }
+
+        return 0;
+    }
+
+===================================================== ARCHIVO: Makefile
+=====================================================
+
+    all:
+        gcc banco.c -o banco
+        gcc usuario.c -o usuario -lpthread
+        gcc monitor.c -o monitor
+
+    clean:
+        rm -f banco usuario monitor

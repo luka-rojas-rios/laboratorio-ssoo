@@ -1,0 +1,19 @@
+[2026-04-19 14:27:54] System started
+[2026-04-19 14:28:13] Deposit account 1004: +1000.00 EUR (failed)
+[2026-04-19 14:28:17] Balance query account 1004
+[2026-04-19 14:28:24] System stopped
+[2026-04-19 14:36:24] System started
+[2026-04-19 14:36:41] Deposit account 1005: +100.00 EUR
+[2026-04-19 14:36:45] Balance query account 1005
+[2026-04-19 14:37:03] Balance query account 1004
+[2026-04-19 14:37:07] Deposit account 1004: +500.00 EUR
+[2026-04-19 14:37:17] Currency move account 1004: 100.00 EUR
+[2026-04-19 14:37:20] Balance query account 1004
+[2026-04-19 14:37:40] Transfer 1004 -> 1005: 100.00 EUR
+[2026-04-19 14:37:59] Balance query account 1005
+[2026-04-19 14:38:24] Balance query account 1004
+[2026-04-19 14:38:25] Balance query account 1005
+[2026-04-19 14:38:27] Balance query account 1005
+[2026-04-19 14:38:50] System stopped
+[2026-04-19 14:41:52] System started
+[2026-04-19 14:42:07] System stopped
